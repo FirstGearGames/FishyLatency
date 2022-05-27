@@ -6,47 +6,81 @@ public class NetworkStatistic : MonoBehaviour
 {
     [Tooltip("The transport which contains the calculation.")]
     [SerializeField]
-    private FishyLatency m_transport;
+    private FishyLatency _transport;
 
     private GUIStyle _style = new GUIStyle();
+    private GUIStyle _headerStyle = new GUIStyle();
+    private float? _lastVertical;
+    private bool _lastServer;
+    private bool _lastClient;
+    private int _lastScreenWidth;
+    private int _lastScreenHeight;
 
     private void OnGUI()
     {
-        _style.normal.textColor = Color.magenta;
-        _style.fontSize = 30;
-        _style.fontStyle = FontStyle.Bold;
+        if (_transport == null)
+            return;
 
-        float width = 85f;
-        float height = 15f;
+        bool isServer = InstanceFinder.IsServer;
+        bool isClient = InstanceFinder.IsClient;
+        if (_lastServer != isServer || _lastClient != isClient)
+        {
+            _lastServer = isServer;
+            _lastClient = isClient;
+            _lastVertical = null;
+        }
+        else if (Screen.width != _lastScreenWidth || Screen.height != _lastScreenHeight)
+        {
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
+            _lastVertical= null;
+        }
+
+        Vector2 multiplier = new Vector2(Screen.width / 1920f, Screen.height / 1080f);
+        _style.normal.textColor = Color.black;
+        _style.fontSize = (int)(35 * multiplier.y);
+        _style.fontStyle = FontStyle.Normal;
+
+        _headerStyle.normal.textColor = Color.black;
+        _headerStyle.fontSize = (int)(50 * multiplier.y);
+        _headerStyle.fontStyle = FontStyle.Bold;
+
+        float width = 85f * multiplier.x;
+        float height = 15f + multiplier.y;
 
         float horizontal = 10f;
-        float vertical = 300f;
+        /* An incredibly lazy way to calculate how far
+         * stuff needs to be drawn from the bottom. */
+        float vertical = (_lastVertical == null) ? 0 : (Screen.height - _lastVertical.Value - 10f);
 
-        if(InstanceFinder.IsServer)
+        if (InstanceFinder.IsServer)
         {
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Packets: {m_transport.ReceivedPacketsServer}/s", _style);
-           
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Bytes: {m_transport.ReceivedBytesServer}/s", _style);
-            
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Packets: {m_transport.SentPacketsServer}/s", _style);
-            
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Bytes: {m_transport.SentBytesServer}/s", _style);
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Server", _headerStyle);
+            vertical += _headerStyle.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Packets: {_transport.ReceivedPacketsServer}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Bytes: {_transport.ReceivedBytesServer}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Packets: {_transport.SentPacketsServer}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Bytes: {_transport.SentBytesServer}/s", _style);
+            vertical += _style.fontSize;
         }
-        else
+        if (InstanceFinder.IsClient)
         {
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Packets: {m_transport.ReceivedPacketsClient}/s", _style);
-
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Bytes: {m_transport.ReceivedBytesClient}/s", _style);
-
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Packets: {m_transport.SentPacketsClient}/s", _style);
-
-            vertical += 25f;
-            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Bytes: {m_transport.SentBytesClient}/s", _style);
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Client", _headerStyle);
+            vertical += _headerStyle.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Packets: {_transport.ReceivedPacketsClient}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Received Bytes: {_transport.ReceivedBytesClient}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Packets: {_transport.SentPacketsClient}/s", _style);
+            vertical += _style.fontSize;
+            GUI.Label(new Rect(horizontal, vertical, width, height), $"Sent Bytes: {_transport.SentBytesClient}/s", _style);
+            vertical += _style.fontSize;
         }
+
+        if (_lastVertical == null)
+            _lastVertical = vertical;
     }
 }
