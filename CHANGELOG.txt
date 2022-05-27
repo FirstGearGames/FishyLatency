@@ -1,28 +1,46 @@
+1.5.0
+	- Project is now maintained by FirstGearGames.
+	- Made NetworkStatistics display neater.
+	- NetworkStatistics display scales to resolution now.
+	- Renamed several variables to fit Fish-Networking convention.
+	- Fixed several issues with the NetworkStatistics.
+	- Improved tooltips on FishyLatency.
+	- Fixed not working on newer Fish-Networking versions; break date is unknown.
+
+1.4.2
+	- Added a check if Transport is initialized.
+
+1.4.1
+	- FishNetworking 1.3.1 Support.
+
+1.4.0
+	- Removed obsolete methods.
+	- FishNetworking 1.3.0 Support.
+
+1.3.1
+	- Fixed incorrect statistic calculations.
+
+1.3.0
+	- Added Network Statistic calculation (byte per sec etc.) by default it's enabled.
+	- Added a sample (NetworkStatistic.cs) how to display those statistics.
+
+1.2.0
+	- Simulation code was restructured (Thanks to Punfish).
+	- Unreliable packets can be out of order no.
+	- Fixed Latency is now stable.
+
+1.1.1
+	- Adjusted the Reliable Latency variable to 0.02f (was unsaved uploaded).
+	
+1.1.0
+	- Fixed the simulation for dropping reliable packets by adding additional latency to it.
+	- Fixed release build checks.
+	- Code restructured.
+
+1.0.1
+	- Added a Enabled variable, to enable or disable the simulation.
+	- Added a check if it accidentally was put in a release build (Thanks to Punfish).
+	- Code cleaned.
+
 1.0.0
 	- Initial release.
-1.0.1
-	- Added a Enabled variable, to enable or disable the simulation
-	- Added a check if it accidentally was put in a release build (Thanks to Punfish)
-	- Code cleaned
-1.1.0
-	- Fixed the simulation for dropping reliable packets by adding additional latency to it
-	- Fixed release build checks
-	- Code restructured
-1.1.1
-	- Adjusted the Reliable Latency variable to 0.02f (was unsaved uploaded)
-1.2.0
-	- Simulation code was restructured (Thanks to Punfish)
-	- Unreliable packets can be out of order no
-	- Fixed Latency is now stable
-1.3.0
-	- Added Network Statistic calculation (byte per sec etc.) by default it's enabled
-	- Added a sample (NetworkStatistic.cs) how to display those statistics
-1.3.1
-	- Fixed incorrect statistic calculations
-1.4.0
-	- Removed obsolete methods
-	- FishNetworking 1.3.0 Support
-1.4.1
-	- FishNetworking 1.3.1 Support
-1.4.2
-	- Added a check if Transport is initialized
