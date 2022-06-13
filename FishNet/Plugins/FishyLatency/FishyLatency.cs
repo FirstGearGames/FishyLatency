@@ -167,7 +167,7 @@ namespace BeardedMonkeys
         /// Gets the current local ConnectionState.
         /// </summary>
         /// <param name="server">True if getting ConnectionState for the server.</param>
-        public override LocalConnectionStates GetConnectionState(bool server)
+        public override LocalConnectionState GetConnectionState(bool server)
         {
             return _transport.GetConnectionState(server);
         }
@@ -175,7 +175,7 @@ namespace BeardedMonkeys
         /// Gets the current ConnectionState of a remote client on the server.
         /// </summary>
         /// <param name="connectionId">ConnectionId to get ConnectionState for.</param>
-        public override RemoteConnectionStates GetConnectionState(int connectionId)
+        public override RemoteConnectionState GetConnectionState(int connectionId)
         {
             return _transport.GetConnectionState(connectionId);
         }
