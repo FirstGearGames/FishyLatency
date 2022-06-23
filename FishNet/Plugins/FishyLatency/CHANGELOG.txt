@@ -1,3 +1,6 @@
+2.0.1
+	- Fixed packets sometimes sending multiple times when they shouldn't be.
+
 2.0.0
 	- Fish-Networking 2.0.0 support.
 

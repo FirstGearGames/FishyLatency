@@ -88,15 +88,13 @@ namespace BeardedMonkeys
 
         private struct Message
         {
-            public readonly byte ChannelId;
             public readonly int ConnectionId;
             public readonly byte[] Data;
             public readonly int Length;
             public readonly float SendTime;
 
-            public Message(byte channelId, int connectionId, ArraySegment<byte> segment, float latency)
+            public Message(int connectionId, ArraySegment<byte> segment, float latency)
             {
-                this.ChannelId = channelId;
                 this.ConnectionId = connectionId;
                 this.SendTime = (Time.unscaledTime + latency);
                 this.Length = segment.Count;
@@ -446,15 +444,15 @@ namespace BeardedMonkeys
         #region Simulation
         private void Add(byte channelId, ArraySegment<byte> segment, bool server = false, int connectionId = 0)
         {
-            Channel c = (Channel)channelId;
             List<Message> collection;
+            Channel c = (Channel)channelId;
 
             if (server)
                 collection = (c == Channel.Reliable) ? _toServerReliablePackets : _toServerUnreliablePackets;
             else
                 collection = (c == Channel.Reliable) ? _toClientReliablePackets : _toClientUnreliablePackets;
 
-            float latency = _longLatencyToFloat; ;
+            float latency = _longLatencyToFloat;
             //If dropping check to add extra latency if reliable, or discard if not.
             if (CheckPacketLoss())
             {
@@ -469,9 +467,9 @@ namespace BeardedMonkeys
                 }
             }
 
-            Message msg = new Message(channelId, connectionId, segment, latency);
+            Message msg = new Message(connectionId, segment, latency);
             int cCount = collection.Count;
-            if (c == Channel.Unreliable && cCount > 0 && CheckOutOfOrder())
+            if (c == Channel.Unreliable && cCount > 0 && CheckOutOfOrder(c))
                 collection.Insert(cCount - 1, msg);
             else
                 collection.Add(msg);
@@ -481,35 +479,36 @@ namespace BeardedMonkeys
         {
             if (server)
             {
-                IterateCollection(_toServerReliablePackets, server);
-                IterateCollection(_toServerUnreliablePackets, server);
+                IterateCollection(_toServerReliablePackets, server, Channel.Reliable);
+                IterateCollection(_toServerUnreliablePackets, server, Channel.Unreliable);
             }
             else
             {
-                IterateCollection(_toClientReliablePackets, server);
-                IterateCollection(_toClientUnreliablePackets, server);
+                IterateCollection(_toClientReliablePackets, server, Channel.Reliable);
+                IterateCollection(_toClientUnreliablePackets, server, Channel.Unreliable);
             }
 
             _transport.IterateOutgoing(server);
         }
 
-        private void IterateCollection(List<Message> collection, bool server)
+        private void IterateCollection(List<Message> collection, bool server, Channel channel)
         {
+            byte cByte = (byte)channel;
             float unscaledTime = Time.unscaledTime;
+
             int count = collection.Count;
             int iterations = 0;
             for (int i = 0; i < count; i++)
             {
-                Message msg = collection[0];
+                Message msg = collection[i];
                 //Not enough time has passed.
                 if (unscaledTime < msg.SendTime)
                     break;
 
-                //Enough time has passed.
                 if (server)
-                    _transport.SendToClient(msg.ChannelId, msg.GetSegment(), msg.ConnectionId);
+                    _transport.SendToClient(cByte, msg.GetSegment(), msg.ConnectionId);
                 else
-                    _transport.SendToServer(msg.ChannelId, msg.GetSegment());
+                    _transport.SendToServer(cByte, msg.GetSegment());
 
                 iterations++;
             }
@@ -520,12 +519,15 @@ namespace BeardedMonkeys
 
         private bool CheckPacketLoss()
         {
-            return _packetloss > 0 && _random.NextDouble() < _packetloss;
+            return (_packetloss > 0d && (_random.NextDouble() < _packetloss));
         }
 
-        private bool CheckOutOfOrder()
+        private bool CheckOutOfOrder(Channel c)
         {
-            return _outOfOrder > 0 && _random.NextDouble() < _outOfOrder;
+            if (c == Channel.Reliable)
+                return false;
+
+            return (_outOfOrder > 0d && (_random.NextDouble() < _outOfOrder));
         }
         #endregion
 
